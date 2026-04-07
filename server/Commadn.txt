@@ -1,0 +1,16 @@
+# --- BioScope: Integrated Startup Commands ---
+
+# 1. Backend API (FastAPI)
+# Run in Terminal 1
+cd "c:\Users\Priya_Chaudhary\OneDrive\Desktop\eDNA (2)\eDNA\server"
+python main.py
+
+# 2. Frontend (React/Vite)
+# Run in Terminal 2
+cd "c:\Users\Priya_Chaudhary\OneDrive\Desktop\eDNA (2)\eDNA\client"
+npm run dev
+
+# 3. AI Layer (Streamlit)
+# Run in Terminal 3
+cd "c:\Users\Priya_Chaudhary\OneDrive\Desktop\eDNA (2)\eDNA\server\services\Biodiversity_AI_Integrated"
+streamlit run app.py --server.port 8501

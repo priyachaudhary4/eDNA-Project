@@ -1,0 +1,16 @@
+# DNABERT-2 Streamlit App Requirements
+# Install: pip install -r requirements.txt --break-system-packages
+# For Mac M1: PyTorch MPS is included in torch>=2.0.0
+
+torch>=2.0.0
+transformers>=4.40.0
+einops                  # required by DNABERT-2 MosaicBERT architecture
+streamlit>=1.28.0
+pandas>=2.1.0
+accelerate
+requests
+
+scikit-learn
+joblib
+tqdm
+jinja2

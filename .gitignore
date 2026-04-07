@@ -1,0 +1,31 @@
+# Dependency directories
+node_modules/
+venv/
+env/
+.env
+__pycache__/
+*.pyc
+
+# Model caches
+.cache/
+.locks/
+
+# Distribution
+dist/
+build/
+.next/
+
+# Databases
+# edna_intelligence.db
+# bioscope.db
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

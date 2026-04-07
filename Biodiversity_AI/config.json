@@ -1,0 +1,7 @@
+{
+  "model_name": "DNABERT-2-117M",
+  "reference_db": "reference_db.json",
+  "confidence_threshold": 0.60,
+  "top_k": 5,
+  "max_seq_len": 512
+}
