@@ -1,0 +1,14 @@
+# --- BioScope: Server Gitignore ---
+
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Large model weights (use Git LFS instead)
+# DNABERT-2-117M/pytorch_model.bin
+
+# Database runtime files
+*.db-journal
+*.db-wal
+*.log
