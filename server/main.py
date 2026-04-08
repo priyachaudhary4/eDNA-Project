@@ -85,6 +85,13 @@ class AlertCreate(BaseModel):
 async def root():
     return {"message": "BioScope Intelligence Backend is Operational", "system": "v1.5-stable"}
 
+@app.get("/api/dna/species")
+async def get_ai_species_list():
+    """Returns the list of species the currently loaded AI model can identify"""
+    if not AI_AVAILABLE or GLOBAL_KNN is None:
+        return {"species": []}
+    return {"species": list(GLOBAL_KNN.classes_)}
+
 @app.get("/api/metrics", response_model=DiversityMetrics)
 async def get_dashboard_metrics(db: Session = Depends(get_db)):
     # Aggregate results by species name across all active samples
@@ -636,65 +643,92 @@ async def toggle_sample_active(sample_id: str, db: Session = Depends(get_db)):
 async def analyze_dna_sequence(file: UploadFile = File(...)):
     print(f"AI Analysis: Received file {file.filename}")
     if not AI_AVAILABLE:
-        print("AI Analysis Error: AI Engine not available (Import Error)")
+        print("AI Analysis Error: AI Engine not available")
         raise HTTPException(status_code=503, detail="Biodiversity AI Engine not available")
-        
+    
     if GLOBAL_EMBEDDER is None or GLOBAL_KNN is None:
-        print(f"AI Analysis Error: Engine not initialized. Embedder: {GLOBAL_EMBEDDER is not None}, KNN: {GLOBAL_KNN is not None}")
-        raise HTTPException(status_code=503, detail="Biodiversity AI Engine not initialized correctly")
+        raise HTTPException(status_code=503, detail="Biodiversity AI Engine not initialized")
     
     try:
-        # Read sequence
         content = await file.read()
+        filename_lower = file.filename.lower()
+        
+        # 1. Parse Sequences (FASTA or CSV)
+        records = []
         try:
-            sequence = content.decode("utf-8").strip()
-        except UnicodeDecodeError:
-            print("AI Analysis Error: Could not decode file as UTF-8")
-            return {"error": "File must be a text-based sequence (UTF-8 encoded FASTA/TXT)"}
+            decoded = content.decode("utf-8")
+        except:
+             decoded = content.decode("latin1", errors="ignore")
+        
+        lines = decoded.splitlines()
 
-        # Process
-        # Clean sequence (remove fasta header if present)
-        lines = [line.strip() for line in sequence.split('\n') if line.strip()]
-        if not lines:
-             return {"error": "Empty file"}
-             
-        if lines[0].startswith('>'):
-            print(f"AI Analysis: Processing FASTA: {lines[0]}")
-            clean_seq = "".join(l for l in lines[1:])
-        else:
-            clean_seq = "".join(l for l in lines)
-            
-        clean_seq = "".join(b for b in clean_seq.upper() if b in "ATCG")
-        print(f"AI Analysis: Cleaned sequence length: {len(clean_seq)}")
+        if filename_lower.endswith(".fasta") or filename_lower.endswith(".txt"):
+            header, seq_parts = None, []
+            for line in lines:
+                if line.startswith(">"):
+                    if header: records.append((header, "".join(seq_parts)))
+                    header = line[1:].strip()
+                    seq_parts = []
+                else:
+                    seq_parts.append(line.strip())
+            if header: records.append((header, "".join(seq_parts)))
+        elif filename_lower.endswith(".csv"):
+            import csv
+            reader = csv.DictReader(lines)
+            for i, row in enumerate(reader, 1):
+                seq = row.get("sequence", list(row.values())[0]).strip()
+                records.append((f"Row_{i}", seq))
         
-        if len(clean_seq) < 10:
-            print("AI Analysis Error: Sequence too short")
-            return {"error": "Sequence too short (minimum 10 ATCG base pairs)"}
+        if not records:
+            # Fallback for headerless text files
+            seq = "".join(l.strip() for l in lines if l.strip())
+            if seq: records.append(("Sequence_1", seq))
+
+        if not records:
+             return {"error": "No valid DNA sequences found in file."}
+
+        # 2. Analyze Records
+        all_results = []
+        for hdr, seq in records:
+            clean_seq = "".join(b for b in seq.upper() if b in "ATCG")
+            if len(clean_seq) < 10:
+                all_results.append({"ID": hdr, "Species": "Invalid", "Similarity": "0.00%", "Status": "Short Seq"})
+                continue
             
-        print("AI Analysis: Generating embedding...")
-        emb = get_embedding(clean_seq, GLOBAL_EMBEDDER, GLOBAL_TOKENIZER, GLOBAL_DEVICE)
-        emb_np = emb.numpy().reshape(1, -1)
-        
-        # Get top 5 matches
-        print("AI Analysis: Querying KNN...")
-        distances, indices = GLOBAL_KNN.kneighbors(emb_np, n_neighbors=min(5, len(GLOBAL_KNN._fit_X)))
-        results = []
-        for d, idx in zip(distances[0], indices[0]):
-            # Map training point index to its target class index, then to class name
-            species_idx = GLOBAL_KNN._y[idx]
-            species = GLOBAL_KNN.classes_[species_idx]
-            similarity = 1.0 - d
-            results.append({
-                "species": species, 
-                "similarity": f"{similarity*100:.2f}%",
-                "raw_sim": float(similarity)
+            emb = get_embedding(clean_seq, GLOBAL_EMBEDDER, GLOBAL_TOKENIZER, GLOBAL_DEVICE)
+            emb_np = emb.numpy().reshape(1, -1)
+            
+            distances, indices = GLOBAL_KNN.kneighbors(emb_np, n_neighbors=5)
+            
+            # Formulate top matches for this specific sequence
+            matches = []
+            for d, idx in zip(distances[0], indices[0]):
+                species_idx = GLOBAL_KNN._y[idx]
+                species = GLOBAL_KNN.classes_[species_idx]
+                sim = 1.0 - d
+                matches.append({
+                    "species": species,
+                    "similarity": f"{sim*100:.2f}%",
+                    "raw_sim": float(sim)
+                })
+            
+            top_sim = matches[0]["raw_sim"]
+            status = "✅ Detected" if top_sim >= 0.6 else "⚠️ Weak"
+            
+            all_results.append({
+                "ID": hdr,
+                "Species": matches[0]["species"],
+                "Similarity": matches[0]["similarity"],
+                "Status": status,
+                "TopMatches": matches
             })
-            
-        print(f"AI Analysis Success: Top match {results[0]['species']} ({results[0]['similarity']})")
-        return {"matches": results}
+
+        print(f"AI Analysis Success: Processed {len(all_results)} sequences.")
+        return {"results": all_results}
+
     except Exception as e:
         import traceback
-        print(f"AI Analysis CRITICAL Error: {e}")
+        print(f"AI Analysis Error: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
