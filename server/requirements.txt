@@ -1,11 +1,10 @@
 fastapi
-uvicorn
+uvicorn[standard]
 sqlalchemy
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 biopython
-psycopg2-binary
 pandas
 numpy
 scikit-learn
@@ -13,7 +12,7 @@ torch
 transformers
 einops
 joblib
-streamlit
 jinja2
 tqdm
 accelerate
+aiofiles

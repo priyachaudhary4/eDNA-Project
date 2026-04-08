@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     Upload,
     MapPin,
@@ -54,7 +55,7 @@ const DataUpload = () => {
 
     const fetchJobs = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/samples');
+            const response = await axios.get(`${API_BASE_URL}/api/samples`);
             const mappedJobs = response.data.map(sample => ({
                 id: sample.id,
                 name: sample.filename,
@@ -139,7 +140,7 @@ const DataUpload = () => {
         setJobs(prev => [optimisticJob, ...prev]);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/upload', formData, {
+            const response = await axios.post(`${API_BASE_URL}/api/upload`, formData, {
                 onUploadProgress: (progressEvent) => {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     setProgress(percentCompleted);
@@ -184,7 +185,7 @@ const DataUpload = () => {
 
     const handleExport = async () => {
         try {
-            const response = await axios.get('http://localhost:8000/api/species');
+            const response = await axios.get(`${API_BASE_URL}/api/species`);
             const data = response.data;
 
             if (data.length === 0) {
@@ -214,7 +215,7 @@ const DataUpload = () => {
 
     const handleCriticalAlert = async () => {
         try {
-            await axios.post('http://localhost:8000/api/alerts', {
+            await axios.post(`${API_BASE_URL}/api/alerts`, {
                 species: "Invasive Entry Detected",
                 location: region,
                 type: "Critical"
@@ -228,7 +229,7 @@ const DataUpload = () => {
 
     const handleDelete = async (jobId) => {
         try {
-            await axios.delete(`http://localhost:8000/api/samples/${jobId}`);
+            await axios.delete(`${API_BASE_URL}/api/samples/${jobId}`);
             setJobs(prev => prev.filter(j => j.id !== jobId));
             setSuccessMsg(`Sample successfully purged from BioScope Records.`);
             setTimeout(() => setSuccessMsg(null), 3000);
@@ -239,7 +240,7 @@ const DataUpload = () => {
 
     const handleToggleActive = async (jobId) => {
         try {
-            const response = await axios.put(`http://localhost:8000/api/samples/${jobId}/toggle_active`);
+            const response = await axios.put(`${API_BASE_URL}/api/samples/${jobId}/toggle_active`);
             setJobs(prev => prev.map(j => j.id === jobId ? { ...j, is_active: response.data.is_active } : j));
             setSuccessMsg(`Sample dynamically ${response.data.is_active ? 'resumed' : 'paused'} in processing pipeline.`);
             setTimeout(() => setSuccessMsg(null), 3000);
@@ -252,7 +253,7 @@ const DataUpload = () => {
         if (!window.confirm("CRITICAL: This will permanently purge ALL processed samples and taxonomic results from the BioScope Intelligence Core. Proceed?")) return;
 
         try {
-            await axios.delete('http://localhost:8000/api/samples');
+            await axios.delete(`${API_BASE_URL}/api/samples`);
             setJobs([]);
             setSuccessMsg("BioScope Intelligence Core has been purged and reset.");
             setTimeout(() => setSuccessMsg(null), 4000);

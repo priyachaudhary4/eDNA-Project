@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     Search,
     Filter,
@@ -36,7 +37,7 @@ const SpeciesInquiry = () => {
     const handleSearch = async (query) => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:8000/api/species?q=${query}`);
+            const response = await axios.get(`${API_BASE_URL}/api/species?q=${query}`);
             setResults(response.data);
             if (response.data.length > 0 && !selectedSpecies) {
                 setSelectedSpecies(response.data[0]);

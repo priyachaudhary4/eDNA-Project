@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     BarChart,
     Bar,
@@ -103,8 +104,8 @@ const Dashboard = () => {
     const fetchData = async () => {
         try {
             const [metricsRes, speciesRes] = await Promise.all([
-                axios.get('http://localhost:8000/api/metrics'),
-                axios.get('http://localhost:8000/api/species'),
+                axios.get(`${API_BASE_URL}/api/metrics`),
+                axios.get(`${API_BASE_URL}/api/species`),
             ]);
 
             setMetrics(metricsRes.data);
@@ -139,7 +140,7 @@ const Dashboard = () => {
 
         // Fetch alerts separately so failures don't block the dashboard
         try {
-            const alertsRes = await axios.get('http://localhost:8000/api/alerts');
+            const alertsRes = await axios.get(`${API_BASE_URL}/api/alerts`);
             setAlerts(alertsRes.data);
         } catch (err) {
             console.warn("Alerts sync deferred:", err.message);

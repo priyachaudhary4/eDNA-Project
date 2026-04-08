@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     Bell,
     AlertTriangle,
@@ -50,14 +51,14 @@ const AlertCenter = () => {
 
     const fetchData = async () => {
         try {
-            const metricsRes = await axios.get('http://localhost:8000/api/metrics');
+            const metricsRes = await axios.get(`${API_BASE_URL}/api/metrics`);
             setMetrics(metricsRes.data);
         } catch (err) {
             console.warn("Alert Center: metrics sync deferred:", err.message);
         }
 
         try {
-            const alertsRes = await axios.get('http://localhost:8000/api/alerts');
+            const alertsRes = await axios.get(`${API_BASE_URL}/api/alerts`);
             setAlerts(alertsRes.data);
         } catch (err) {
             console.warn("Alert Center: alerts sync deferred:", err.message);
@@ -145,7 +146,7 @@ const AlertCenter = () => {
 
     const handleDeleteAlert = async (id) => {
         try {
-            await axios.delete(`http://localhost:8000/api/alerts/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/alerts/${id}`);
             setAlerts(prev => prev.filter(a => a.id !== id));
         } catch (err) {
             console.error("Failed to delete alert", err);
@@ -578,7 +579,7 @@ const AlertCenter = () => {
                                 e.preventDefault();
                                 setIsBroadcasting(true);
                                 try {
-                                    await axios.post('http://localhost:8000/api/alerts', broadcastData);
+                                    await axios.post(`${API_BASE_URL}/api/alerts`, broadcastData);
                                     setBroadcastSuccess(true);
                                     setTimeout(() => {
                                         setIsDisseminating(false);

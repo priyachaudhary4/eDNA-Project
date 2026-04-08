@@ -24,6 +24,7 @@ import {
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useProfile } from '../context/ProfileContext';
+import API_BASE_URL from '../config/api';
 
 const navItems = [
     { icon: Home, label: 'Dashboard', path: '/dashboard' },
@@ -52,7 +53,7 @@ const Layout = ({ children }) => {
     const fetchNotifications = async () => {
         try {
             setLoadingNotifs(true);
-            const response = await axios.get('http://localhost:8000/api/alerts');
+            const response = await axios.get(`${API_BASE_URL}/api/alerts`);
             setNotifications(response.data.slice(0, 10)); // Show latest 10
             setLoadingNotifs(false);
         } catch (err) {
@@ -70,7 +71,7 @@ const Layout = ({ children }) => {
     const handleDeleteNotification = async (e, id) => {
         e.stopPropagation();
         try {
-            await axios.delete(`http://localhost:8000/api/alerts/${id}`);
+            await axios.delete(`${API_BASE_URL}/api/alerts/${id}`);
             setNotifications(prev => prev.filter(n => n.id !== id));
         } catch (err) {
             console.error("Failed to delete notification", err);
@@ -89,7 +90,7 @@ const Layout = ({ children }) => {
     const handleClearAll = async () => {
         if (window.confirm("Clear all notifications? This will not affect your uploaded data.")) {
             try {
-                await axios.delete('http://localhost:8000/api/alerts');
+                await axios.delete(`${API_BASE_URL}/api/alerts`);
                 setNotifications([]);
                 setIsNotifOpen(false);
             } catch (err) {

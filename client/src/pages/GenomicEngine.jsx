@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     Activity,
     CheckCircle2,
@@ -98,8 +99,8 @@ const GenomicEngine = () => {
             try {
                 console.log('GenomicEngine: Fetching existing data...');
                 const [resSpecies, resMetrics] = await Promise.all([
-                    axios.get('http://localhost:8000/api/species'),
-                    axios.get('http://localhost:8000/api/metrics')
+                    axios.get(`${API_BASE_URL}/api/species`),
+                    axios.get(`${API_BASE_URL}/api/metrics`)
                 ]);
                 console.log('GenomicEngine: Got', resSpecies.data?.length, 'species');
                 if (resSpecies.data && resSpecies.data.length > 0) {
@@ -114,8 +115,8 @@ const GenomicEngine = () => {
                 setTimeout(async () => {
                     try {
                         const [resSpecies, resMetrics] = await Promise.all([
-                            axios.get('http://localhost:8000/api/species'),
-                            axios.get('http://localhost:8000/api/metrics')
+                            axios.get(`${API_BASE_URL}/api/species`),
+                            axios.get(`${API_BASE_URL}/api/metrics`)
                         ]);
                         if (resSpecies.data && resSpecies.data.length > 0) {
                             setResults(resSpecies.data);
@@ -167,8 +168,8 @@ const GenomicEngine = () => {
         // Fetch dynamic data from backend - only show what's in the sample data uploaded
         try {
             const [resSpecies, resMetrics] = await Promise.all([
-                axios.get('http://localhost:8000/api/species'),
-                axios.get('http://localhost:8000/api/metrics')
+                axios.get(`${API_BASE_URL}/api/species`),
+                axios.get(`${API_BASE_URL}/api/metrics`)
             ]);
             
             if (resSpecies.data && resSpecies.data.length > 0) {

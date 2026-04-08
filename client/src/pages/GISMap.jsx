@@ -3,6 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import { Map as MapIcon, Filter, Layers, Download, Search, Loader2, RefreshCw, X, Menu, FileText, Activity } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -167,7 +168,7 @@ const GISMap = () => {
     const fetchLocations = async () => {
         setLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/api/samples');
+            const response = await axios.get(`${API_BASE_URL}/api/samples`);
             const data = response.data.filter(sample => sample.is_active === 1);
             setLocations(data);
 

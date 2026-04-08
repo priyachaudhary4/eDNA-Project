@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
     FileText,
     Download,
@@ -61,8 +62,8 @@ const ResearchReports = () => {
         const fetchData = async () => {
             try {
                 const [resSpecies, resMetrics] = await Promise.all([
-                    axios.get('http://localhost:8000/api/species'),
-                    axios.get('http://localhost:8000/api/metrics')
+                    axios.get(`${API_BASE_URL}/api/species`),
+                    axios.get(`${API_BASE_URL}/api/metrics`)
                 ]);
                 setSpeciesData(resSpecies.data);
                 setMetrics(resMetrics.data);
@@ -690,7 +691,7 @@ const ResearchReports = () => {
                                         const criticalSpecies = speciesData.find(s => ['Invasive', 'Endangered'].includes(s.status)) || speciesData[0];
                                         
                                         if (criticalSpecies) {
-                                            await axios.post('http://localhost:8000/api/alerts', {
+                                            await axios.post(`${API_BASE_URL}/api/alerts`, {
                                                 species: criticalSpecies.species_name,
                                                 location: criticalSpecies.geographic_region || 'Multiple Basins',
                                                 type: criticalSpecies.status === 'Invasive' ? 'Critical Warning' : 'Conservation Discovery'
