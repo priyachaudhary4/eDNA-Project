@@ -536,11 +536,38 @@ const SpeciesInquiry = () => {
 
                                 <div className="relative z-10 p-8 flex flex-col md:flex-row gap-8 items-start md:items-center">
                                     {/* Image Container */}
-                                    <div className="w-40 h-40 md:w-52 md:h-52 shrink-0 rounded-2xl bg-black border-4 border-slate-800 flex items-center justify-center overflow-hidden shadow-2xl relative group">
+                                    <div className="w-40 h-40 md:w-52 md:h-52 shrink-0 rounded-2xl bg-black border-4 border-slate-800 flex items-center justify-center overflow-hidden shadow-2xl relative group cursor-pointer transition-all duration-500 hover:border-dna-cyan hover:shadow-[0_0_30px_rgba(56,189,248,0.3)]">
                                         {wikiImage ? (
-                                            <img src={wikiImage} alt={selectedSpecies.species_name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                            <>
+                                                <img 
+                                                    src={wikiImage} 
+                                                    alt={selectedSpecies.species_name} 
+                                                    className="w-full h-full object-cover group-hover:scale-110 group-hover:rotate-2 transition-transform duration-700 filter brightness-90 group-hover:brightness-110" 
+                                                />
+                                                {/* Border Sparkle Highlights */}
+                                                <div className="absolute -inset-[3px] rounded-[2xl] pointer-events-none z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                    {[...Array(8)].map((_, i) => (
+                                                        <div 
+                                                            key={i}
+                                                            className="absolute w-1 h-1 rounded-full animate-ping"
+                                                            style={{
+                                                                backgroundColor: i % 2 === 0 ? '#10b981' : '#38bdf8',
+                                                                boxShadow: `0 0 10px ${i % 2 === 0 ? '#10b981' : '#38bdf8'}`,
+                                                                top: i < 2 ? '0%' : i < 4 ? '100%' : '50%',
+                                                                left: i < 2 ? '50%' : i < 4 ? '50%' : (i === 4 ? '0%' : '100%'),
+                                                                animationDelay: `${i * 0.2}s`
+                                                            }}
+                                                        />
+                                                    ))}
+                                                    <div className="absolute inset-0 rounded-2xl border border-transparent border-t-[#38bdf8] border-b-[#10b981] opacity-30 animate-spin-slow"></div>
+                                                </div>
+                                                {/* Light Sweep Effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-[150%] skew-x-[-25deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none"></div>
+                                                {/* Color Tint Overlay */}
+                                                <div className="absolute inset-0 bg-gradient-to-t from-dna-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                                            </>
                                         ) : (
-                                            <div className="flex flex-col items-center justify-center opacity-30">
+                                            <div className="flex flex-col items-center justify-center opacity-30 group-hover:opacity-60 transition-opacity">
                                                 <Leaf size={40} className="mb-2 text-dna-cyan" />
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No Image</span>
                                             </div>

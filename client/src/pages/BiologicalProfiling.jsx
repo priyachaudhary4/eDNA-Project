@@ -350,23 +350,63 @@ const BiologicalProfiling = () => {
                                             <h2 className="text-2xl font-bold tracking-tight">About {wikipediaInfo.title}</h2>
                                         </div>
 
-                                        <div className="flex flex-col md:flex-row gap-12 items-start">
+                                        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
                                             {/* 3D Perspective Mobile Frame */}
                                             {wikipediaInfo.imageUrl && (
                                                 <div 
-                                                    className="w-[280px] md:w-[320px] lg:w-[360px] flex-shrink-0 relative rounded-[40px] border-[5px] border-[#10b981]/50 shadow-[25px_25px_50px_rgba(0,0,0,0.5),0_0_30px_rgba(16,185,129,0.2)] group/img transition-all duration-500 hover:rotate-0 hover:scale-[1.02]"
+                                                    className="w-[260px] md:w-[300px] lg:w-[320px] flex-shrink-0 relative rounded-[35px] border-[5px] border-[#10b981]/40 shadow-[20px_20px_40px_rgba(0,0,0,0.4)] group/img transition-all duration-700 hover:rotate-0 hover:scale-[1.05] hover:border-[#10b981]/80 hover:shadow-[0_0_60px_rgba(16,185,129,0.3)] cursor-pointer"
                                                     style={{ 
-                                                        transform: 'perspective(1200px) rotateY(-8deg) rotateX(3deg)',
+                                                        transform: 'perspective(1200px) rotateY(-10deg) rotateX(5deg)',
                                                         transformStyle: 'preserve-3d'
                                                     }}
                                                 >
+                                                    {/* Border Sparks Layer */}
+                                                    <div className="absolute -inset-[5px] rounded-[35px] pointer-events-none z-20 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500">
+                                                        {[...Array(12)].map((_, i) => (
+                                                            <div 
+                                                                key={i}
+                                                                className="absolute animate-pulse"
+                                                                style={{
+                                                                    width: '4px',
+                                                                    height: '4px',
+                                                                    backgroundColor: i % 2 === 0 ? '#10b981' : '#38bdf8',
+                                                                    boxShadow: `0 0 12px ${i % 2 === 0 ? '#10b981' : '#38bdf8'}, 0 0 20px ${i % 2 === 0 ? '#10b981' : '#38bdf8'}`,
+                                                                    borderRadius: '50%',
+                                                                    // Position sparks only on the border
+                                                                    top: i < 3 ? '-2px' : i < 6 ? '100%' : `${(i - 6) * 33}%`,
+                                                                    left: i < 3 ? `${i * 50}%` : i < 6 ? `${(i - 3) * 50}%` : (i < 9 ? '-2px' : '100%'),
+                                                                    animationDelay: `${i * 0.2}s`,
+                                                                    animationDuration: '1s'
+                                                                }}
+                                                            />
+                                                        ))}
+                                                        {/* Spinning border light trail */}
+                                                        <div className="absolute inset-0 rounded-[35px] border-2 border-transparent border-t-[#38bdf8] border-r-[#10b981] opacity-40 animate-spin-slow"></div>
+                                                    </div>
+
+                                                    {/* Internal Glow on Hover */}
+                                                    <div className="absolute inset-0 rounded-[30px] opacity-0 group-hover/img:opacity-100 transition-opacity duration-700 bg-gradient-to-tr from-[#10b981]/10 via-transparent to-white/5 pointer-events-none z-10"></div>
+                                                    
                                                     <img
                                                         src={wikipediaInfo.imageUrl}
                                                         alt={wikipediaInfo.title}
-                                                        className="w-full h-[480px] md:h-[550px] object-cover rounded-[35px] filter brightness-110 contrast-105"
+                                                        className="w-full h-[320px] md:h-[380px] object-cover rounded-[30px] transition-all duration-700 group-hover/img:scale-105 filter brightness-100 group-hover/img:brightness-110 contrast-110"
                                                     />
+
+                                                    {/* Light Sweep Effect */}
+                                                    <div className="absolute inset-0 rounded-[30px] overflow-hidden pointer-events-none">
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-25deg] group-hover/img:translate-x-[150%] transition-transform duration-[1200ms] ease-in-out"></div>
+                                                    </div>
+
                                                     {/* Glass Overlay for depth */}
-                                                    <div className="absolute inset-0 rounded-[35px] bg-gradient-to-tr from-[#10b981]/10 via-transparent to-white/5 pointer-events-none"></div>
+                                                    <div className="absolute inset-0 rounded-[30px] bg-gradient-to-tr from-[#10b981]/15 via-transparent to-white/5 pointer-events-none mix-blend-overlay"></div>
+                                                    
+                                                    {/* Floating Badge (Species Name) on hover */}
+                                                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 translate-y-4 opacity-0 group-hover/img:translate-y-0 group-hover/img:opacity-100 transition-all duration-500 bg-black/60 backdrop-blur-md border border-white/20 px-4 py-2 rounded-full z-20 whitespace-nowrap">
+                                                        <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">
+                                                            Taxonomic Profile: {wikipediaInfo.title}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             )}
 
