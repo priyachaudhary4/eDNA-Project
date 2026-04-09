@@ -9,13 +9,13 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements first for layer caching
-COPY requirements.txt .
+COPY server/requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the server code
-COPY . .
+# Copy the server code into the root of /app
+COPY server/ .
 
 # Expose Hugging Face default port
 EXPOSE 7860
