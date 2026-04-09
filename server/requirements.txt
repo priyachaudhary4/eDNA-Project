@@ -16,3 +16,4 @@ jinja2
 tqdm
 accelerate
 aiofiles
+psycopg2-binary

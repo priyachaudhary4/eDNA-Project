@@ -3,15 +3,27 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 import os
 
-# For development, we use SQLite.
-# Consistent DB location in the server directory
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) # db/
-SERVER_DIR = os.path.dirname(CURRENT_DIR) # server/
-DB_PATH = os.path.join(SERVER_DIR, "edna_intelligence.db")
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+# Get cloud database URL from environment variable, fallback to SQLite
+# If using Supabase/Render, set DATABASE_URL in secrets
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+DB_PATH = None
+
+if not SQLALCHEMY_DATABASE_URL:
+    # For development, we use SQLite.
+    CURRENT_DIR = os.path.dirname(os.path.abspath(__file__)) # db/
+    SERVER_DIR = os.path.dirname(CURRENT_DIR) # server/
+    DB_PATH = os.path.join(SERVER_DIR, "edna_intelligence.db")
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_PATH}"
+else:
+    # Fix for Heroku/Supabase URLs that start with 'postgres://' which SQLAlchemy doesn't like anymore
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Only SQLite needs connect_args={"check_same_thread": False}
+connect_args = {"check_same_thread": False} if SQLALCHEMY_DATABASE_URL.startswith("sqlite") else {}
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
+    SQLALCHEMY_DATABASE_URL, connect_args=connect_args
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
