@@ -17,3 +17,4 @@ tqdm
 accelerate
 aiofiles
 psycopg2-binary
+email-validator
