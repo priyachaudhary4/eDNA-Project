@@ -1,3 +1,12 @@
+---
+title: eDNA-Biodiversity-AI1
+emoji: 🧬
+colorFrom: green
+colorTo: blue
+sdk: docker
+pinned: false
+---
+
 # 🧬 BioScope: AI-Based DNA Biodiversity Monitoring System
 
 **BioScope** is a high-performance research platform designed for modern ecological monitoring. By leveraging environmental DNA (eDNA) analysis and AI-driven metrics, it allows scientists to monitor biodiversity, identify rare species, and detect invasive threats in real-time.
